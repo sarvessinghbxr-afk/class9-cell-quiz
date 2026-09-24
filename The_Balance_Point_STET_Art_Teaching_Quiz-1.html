@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Balance Point Study Centre - STET Art & Teaching Quiz</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Devanagari",sans-serif;background:linear-gradient(135deg,#fff3cd,#ffe0b2,#e8f5e9);color:#17202a}
+.container{max-width:850px;margin:auto;padding:15px}
+.card{background:#fff;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.14);padding:20px;margin-top:15px}
+.header{text-align:center;background:linear-gradient(135deg,#b71c1c,#ef6c00);color:#fff;padding:20px;border-radius:18px}
+.header h1{margin:0;font-size:28px}.header p{margin:6px 0;font-weight:bold}
+.start{text-align:center;padding:30px 15px}.start h2{font-size:25px}
+button{border:0;border-radius:10px;padding:12px 20px;font-size:17px;font-weight:bold;cursor:pointer;margin:5px}
+.start-btn{background:#c62828;color:#fff;padding:15px 35px;font-size:20px}
+.nav button{background:#1565c0;color:#fff}.nav button:disabled{background:#aaa;cursor:not-allowed}
+.stats{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.stat{flex:1;min-width:120px;background:#f5f5f5;border-radius:10px;padding:10px;text-align:center;font-weight:bold}
+.question{font-size:21px;font-weight:bold;line-height:1.5;margin:15px 0}
+.option{display:block;width:100%;text-align:left;background:#f7f9fc;border:2px solid #ddd;color:#222;margin:10px 0;padding:13px;border-radius:10px}
+.option:hover{border-color:#1565c0;background:#eef5ff}
+.option.correct{background:#d9f7df;border-color:#2e7d32;color:#155724}
+.option.wrong{background:#ffe0e0;border-color:#c62828;color:#8b0000}
+.feedback{padding:12px;border-radius:10px;background:#fff8e1;margin-top:12px;line-height:1.5}
+.progress{height:10px;background:#ddd;border-radius:10px;overflow:hidden;margin:10px 0 15px}
+.progress div{height:100%;background:#2e7d32;width:0}
+.hidden{display:none}
+.footer{text-align:center;font-size:14px;color:#555;margin:15px}
+.result{text-align:center}.result h2{color:#b71c1c}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>The Balance Point Study Centre</h1>
+    <p>By Sarbesh Singh</p>
+    <p>Mob: 9235266553</p>
+    <p>STET — Art & Teaching | हिन्दी</p>
+  </div>
+
+  <div id="start" class="card start">
+    <h2>STET Art & Teaching Quiz</h2>
+    <p>50 महत्वपूर्ण बहुविकल्पीय प्रश्न</p>
+    <p>प्रत्येक प्रश्न = 1 अंक | Negative Marking नहीं</p>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <div id="quiz" class="card hidden">
+    <div class="stats">
+      <div class="stat">प्रश्न: <span id="qno">1</span>/50</div>
+      <div class="stat">सही: <span id="correct">0</span></div>
+      <div class="stat">Total Marks: <span id="score">0</span>/50</div>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <div id="question" class="question"></div>
+    <div id="options"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <div class="nav" style="text-align:center;margin-top:18px">
+      <button id="prev" onclick="prevQuestion()">← Previous</button>
+      <button id="next" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+
+  <div id="result" class="card result hidden">
+    <h2>Quiz Complete!</h2>
+    <p>आपका Score: <strong><span id="finalScore"></span>/50</strong></p>
+    <p>सही उत्तर: <strong><span id="finalCorrect"></span></strong></p>
+    <button class="start-btn" onclick="restartQuiz()">Restart Quiz</button>
+  </div>
+  <div class="footer">The Balance Point Study Centre | By Sarbesh Singh | 9235266553</div>
+</div>
+
+<script>
+const questions=[
+["गतिशील शिक्षण वातावरण के संदर्भ में निम्नलिखित में से कौन-सा कथन सत्य है?","शिक्षक एक आश्रित चर है और छात्र एक स्वतंत्र चर है।","शिक्षक एक स्वतंत्र चर है और छात्र एक आश्रित चर है।","शिक्षक और छात्र दोनों हस्तक्षेप करने वाले चर हैं।","उपरोक्त में से कोई नहीं।",2,"2025, 17 अक्टूबर, Shift 2"],
+["पाठ्यचर्या की प्रभावशीलता किसके द्वारा निर्धारित की जाती है?","सामुदायिक सहयोग","शिक्षकों की योग्यता","छात्रों की रुचि","पर्यवेक्षण की गुणवत्ता",1,"2025, 15 अक्टूबर, Shift 2"],
+["छात्रों की ताकत, कमजोरियों और सीखने की जरूरतों की पहचान पर केंद्रित आकलन तकनीक कौन-सी है?","निदानात्मक आकलन","योगात्मक आकलन","मानक-संदर्भित आकलन","प्लेसमेंट आकलन",0,"2025, 15 अक्टूबर, Shift 2"],
+["भावात्मक क्षेत्र जीवन शैली के एक भाग के रूप में मूल्य-प्रणाली को अपनाने के किस स्तर पर केंद्रित होता है?","जवाब देना","मूल्य निर्धारण करना","संगठन करना","चरित्र-चित्रण करना",3,"2025, 14 अक्टूबर, Shift 2"],
+["पाठ योजना का कौन-सा घटक कक्षा चर्चा या समूह परियोजनाओं के माध्यम से व्यक्तिगत और पारस्परिक विकास को बढ़ावा देता है?","सामाजिक विकास","विषय-वस्तु प्रस्तुति","मूल्यांकन","गृहकार्य",0,"2025, 14 अक्टूबर, Shift 2"],
+["शिक्षक अपने मिशन में कितना सफल हुआ है, यह मुख्यतः किससे प्रदर्शित होता है?","शिक्षक का छात्रों के लिए प्यार","शिक्षक प्रभावशीलता","नियमितता","अन्य शिक्षकों के प्रति रवैया",1,"2025, 31 अक्टूबर, Shift 1"],
+["सीखने की प्रक्रिया पर चिंतन करते हुए पाठ योजना का समापन किसका उदाहरण है?","सीखना कैसे सीखें","जीना कैसे सीखें","कैसे करना है सीखना","सीखना कि कैसे होना चाहिए",0,"2025, 1 नवंबर, Shift 1"],
+["सूक्ष्म शिक्षण के बारे में कौन-सा कथन असत्य है?","सूक्ष्म शिक्षण में विभिन्न शिक्षण कौशलों का अभ्यास किया जाता है।","सूक्ष्म शिक्षण का कार्य जटिल शिक्षण प्रक्रिया को सरल बनाना है।","इसमें शिक्षण कौशलों पर जोर दिया जाता है।","यह वास्तविक कक्षा में पूरे पाठ्यक्रम को एक साथ पढ़ाने का अभ्यास है।",3,"2025, 15 अक्टूबर, Shift 1"],
+["निम्नलिखित में से कौन-सा शिक्षक की प्रभावशीलता का अधिक उपयुक्त संकेतक है?","केवल शिक्षक की विषय-वस्तु की जानकारी","विद्यार्थियों के सीखने के परिणामों और कक्षा-प्रक्रिया की गुणवत्ता","केवल शिक्षक की नियमित उपस्थिति","केवल पाठ्यपुस्तक का पूरा होना",1,"STET Art of Teaching PYQ विषय"],
+["निदानात्मक आकलन और उपचारात्मक शिक्षण का सही संबंध क्या है?","निदानात्मक आकलन कठिनाई पहचानता है और उपचारात्मक शिक्षण उसे दूर करने के लिए सहायता देता है।","उपचारात्मक शिक्षण कठिनाई पहचानता है और निदानात्मक आकलन उसे दूर करता है।","दोनों केवल अंतिम परीक्षा के बाद किए जाते हैं।","दोनों का उद्देश्य केवल अंक बढ़ाना है।",0,"STET Art of Teaching PYQ विषय"],
+["बाल-केंद्रित कक्षा में शिक्षक की सबसे उपयुक्त भूमिका क्या है?","एकमात्र ज्ञान-स्रोत","सुविधादाता और मार्गदर्शक","केवल अनुशासन नियंत्रक","केवल परीक्षक",1,"STET Art of Teaching PYQ विषय"],
+["रचनावादी कक्षा में नई अवधारणा सिखाने से पहले पूर्व ज्ञान जानना क्यों महत्वपूर्ण है?","क्योंकि नया ज्ञान पूर्व अनुभवों से अर्थपूर्ण रूप से जोड़ा जा सकता है।","क्योंकि इससे शिक्षक को केवल अंक देने में सुविधा होती है।","क्योंकि इससे पाठ्यक्रम छोटा हो जाता है।","क्योंकि इससे मूल्यांकन की आवश्यकता समाप्त हो जाती है।",0,"STET Art of Teaching PYQ विषय"],
+["यदि विद्यार्थी एक ही अवधारणा को अलग-अलग तरीकों से समझाते हैं, तो शिक्षक को क्या करना चाहिए?","केवल एक उत्तर स्वीकार करके बाकी को रोक देना चाहिए।","विभिन्न तर्कों की तुलना और प्रमाण के आधार पर चर्चा करानी चाहिए।","सभी उत्तरों को बिना जाँच सही मान लेना चाहिए।","केवल पाठ्यपुस्तक की भाषा को स्वीकार करना चाहिए।",1,"STET Art of Teaching PYQ विषय"],
+["Formative Assessment का सबसे महत्वपूर्ण उपयोग क्या है?","सीखने के दौरान प्रमाण जुटाकर शिक्षण में सुधार करना","केवल अंतिम प्रमाणपत्र तैयार करना","छात्रों को स्थायी रूप से वर्गीकृत करना","केवल वार्षिक परिणाम बनाना",0,"STET Art of Teaching PYQ विषय"],
+["समावेशी शिक्षा में उचित विभेदीकृत शिक्षण का अर्थ क्या है?","सभी विद्यार्थियों को बिल्कुल एक जैसा कार्य देना","विद्यार्थियों की विविध आवश्यकताओं के अनुसार प्रक्रिया या सहायता में उपयुक्त परिवर्तन करना","कम उपलब्धि वाले विद्यार्थियों को हमेशा अलग रखना","केवल विशेष विद्यालय में भेजना",1,"STET Art of Teaching PYQ विषय"],
+["उच्च-स्तरीय चिंतन को सबसे अधिक कौन-सा कार्य सक्रिय करता है?","परिभाषा याद करना","तथ्य दोहराना","दो समाधान विधियों की तुलना कर उनके औचित्य का विश्लेषण करना","पुस्तक से वाक्य नकल करना",2,"STET Art of Teaching PYQ विषय"],
+["Portfolio Assessment की सबसे मजबूत विशेषता क्या है?","यह समय के साथ विद्यार्थी के कार्य और प्रगति के प्रमाण संकलित करता है।","यह केवल एक दिन की परीक्षा पर आधारित होता है।","इसमें विद्यार्थी के कार्य का कोई प्रमाण नहीं होता।","यह केवल उपस्थिति मापता है।",0,"STET Art of Teaching PYQ विषय"],
+["Peer Assessment को विश्वसनीय बनाने के लिए सबसे आवश्यक क्या है?","स्पष्ट मानदंड या rubric","केवल मित्रता","बिना निर्देश के अंक देना","सभी को समान अंक देना",0,"STET Art of Teaching PYQ विषय"],
+["कक्षा में गलत उत्तर देने वाले विद्यार्थी के लिए सबसे रचनात्मक प्रतिक्रिया कौन-सी है?","उत्तर गलत है, बैठ जाओ।","तुम्हें यह नहीं आता।","तुमने कौन-सा तर्क अपनाया? चलो उस चरण को जाँचते हैं।","दूसरे विद्यार्थी को उत्तर देने दो और इसे छोड़ दो।",2,"STET Art of Teaching PYQ विषय"],
+["कला-शिक्षण में प्रक्रिया-केंद्रित मूल्यांकन का अर्थ क्या है?","केवल अंतिम उत्पाद की सुंदरता देखना","विद्यार्थी के प्रयास, प्रयोग, निर्णय और अभिव्यक्ति की प्रक्रिया को भी महत्व देना","केवल महंगे रंगों का मूल्यांकन करना","केवल शिक्षक के नमूने से समानता देखना",1,"STET Art of Teaching PYQ विषय"],
+["यदि किसी कला गतिविधि में विद्यार्थियों की सांस्कृतिक अभिव्यक्तियाँ अलग-अलग हों, तो शिक्षक का उचित दृष्टिकोण क्या है?","एक ही सांस्कृतिक शैली को सही घोषित करना","विविध अभिव्यक्तियों को स्वीकार कर उनके संदर्भ पर चर्चा कराना","अलग शैली वाले कार्यों को अंक न देना","सभी को एक ही चित्र की नकल करवाना",1,"STET Art of Teaching PYQ विषय"],
+["अनुभवात्मक अधिगम का चक्र सबसे अच्छी तरह किस क्रम से समझा जा सकता है?","अनुभव, चिंतन, अवधारणाकरण और प्रयोग","व्याख्यान, रटना, परीक्षा और दंड","पढ़ना, नकल करना, याद करना और छोड़ना","परीक्षा, परिणाम, अवकाश और पुनरावृत्ति",0,"STET Art of Teaching PYQ विषय"],
+["Micro Teaching का मूल उद्देश्य क्या है?","एक समय में विशिष्ट शिक्षण कौशल का अभ्यास और feedback प्राप्त करना","एक साथ पूरा पाठ्यक्रम समाप्त करना","केवल विद्यार्थियों की परीक्षा लेना","केवल विद्यालय प्रशासन का निरीक्षण करना",0,"STET Art of Teaching PYQ विषय"],
+["यदि सीखने के परिणाम बताते हैं कि अधिकांश विद्यार्थी एक ही misconception साझा कर रहे हैं, तो शिक्षक की पहली शैक्षणिक प्रतिक्रिया क्या होनी चाहिए?","उसी तरीके से पाठ दोहराते रहना","misconception की प्रकृति जाँचकर वैकल्पिक उदाहरण/रणनीति से पुनः शिक्षण करना","विद्यार्थियों को दोष देना","केवल कठिन गृहकार्य देना",1,"STET Art of Teaching PYQ विषय"],
+["Rubric का प्रमुख शैक्षणिक लाभ क्या है?","मूल्यांकन मानदंड और अपेक्षित प्रदर्शन स्तर स्पष्ट करना","सभी विद्यार्थियों को समान अंक देना","मूल्यांकन को पूरी तरह स्वचालित करना","feedback की आवश्यकता समाप्त करना",0,"STET Art of Teaching PYQ विषय"],
+["एक शिक्षक पूछता है: 'तुम इस निष्कर्ष तक कैसे पहुँचे?' यह प्रश्न मुख्यतः किस क्षमता को उजागर करता है?","रटने की क्षमता","तर्क और सोच की प्रक्रिया","लेखन की गति","स्मरण की मात्रा",1,"STET Art of Teaching PYQ विषय"],
+["यदि एक विद्यार्थी समूह-कार्य में लगातार दूसरों पर निर्भर रहता है, तो सबसे उपयुक्त हस्तक्षेप क्या है?","उसे स्थायी रूप से समूह से निकाल देना","भूमिकाएँ स्पष्ट करना और व्यक्तिगत उत्तरदायित्व सुनिश्चित करना","पूरे समूह को दंड देना","उसका काम शिक्षक स्वयं कर देना",1,"STET Art of Teaching PYQ विषय"],
+["समस्या-आधारित अधिगम में समस्या कैसी होनी चाहिए?","अर्थपूर्ण और ऐसी कि विद्यार्थी खोज, तर्क तथा सहयोग से समाधान विकसित करें","केवल याद की हुई परिभाषा पूछने वाली","जिसका उत्तर सीधे पुस्तक की एक पंक्ति में हो","जिसमें विद्यार्थी की कोई भूमिका न हो",0,"STET Art of Teaching PYQ विषय"],
+["यदि आकलन में उच्च अंक आए लेकिन विद्यार्थी नई परिस्थिति में अवधारणा लागू न कर पाए, तो कौन-सी चिंता सबसे प्रासंगिक है?","आकलन की वैधता और transfer of learning","केवल उपस्थिति","केवल लिखावट","केवल कक्षा की सजावट",0,"STET Art of Teaching PYQ विषय"],
+["सहकारी अधिगम को केवल समूह में बैठने से अलग करने वाली मुख्य विशेषता क्या है?","साझा लक्ष्य के साथ सकारात्मक पारस्परिक निर्भरता और व्यक्तिगत उत्तरदायित्व","सिर्फ चार विद्यार्थियों का एक साथ बैठना","केवल एक विद्यार्थी का काम करना","केवल शिक्षक का बोलना",0,"STET Art of Teaching PYQ विषय"],
+["Affective domain में मूल्य-प्रणाली का व्यवहार में स्थायी रूप से समावेश किस स्तर से संबंधित है?","Responding","Valuing","Organization","Characterization",3,"2025, 14 अक्टूबर, Shift 2"],
+["पाठ योजना में समूह परियोजना के माध्यम से व्यक्तिगत और पारस्परिक विकास को बढ़ावा देना किस प्रकार के उद्देश्य से सबसे अधिक जुड़ा है?","सामाजिक-भावात्मक विकास","केवल तथ्यात्मक स्मरण","केवल मोटर कौशल","केवल प्रशासनिक दक्षता",0,"2025, 14 अक्टूबर, Shift 2"],
+["गतिशील शिक्षण वातावरण में शिक्षक और छात्र के बीच संबंध को किस रूप में देखना अधिक उपयुक्त है?","केवल एकतरफा निर्भरता","अंतःक्रियात्मक प्रक्रिया जिसमें दोनों की गतिविधियाँ कक्षा-प्रक्रिया को प्रभावित करती हैं","शिक्षक का कोई प्रभाव नहीं","केवल छात्र का नियंत्रण",1,"2025, 17 अक्टूबर, Shift 2"],
+["यदि पाठ्यचर्या प्रभावी है लेकिन विद्यार्थियों की रुचि लगातार कम है, तो शिक्षक को सबसे पहले क्या जाँचना चाहिए?","अधिगम अनुभवों की प्रासंगिकता और विद्यार्थियों की आवश्यकताओं से उनका संबंध","केवल पाठ्यपुस्तक का आकार","केवल परीक्षा की लंबाई","केवल कक्षा की दीवारों का रंग",0,"STET Art of Teaching PYQ विषय"],
+["निदानात्मक आकलन के परिणामों का उपयोग किए बिना केवल अधिक अभ्यास-पत्र देना क्यों कमजोर रणनीति हो सकती है?","क्योंकि अभ्यास की मात्रा बढ़ाने से कठिनाई का कारण स्वतः ज्ञात नहीं होता","क्योंकि अभ्यास कभी उपयोगी नहीं होता","क्योंकि निदानात्मक आकलन केवल कला में होता है","क्योंकि सभी विद्यार्थी समान तरीके से सीखते हैं",0,"STET Art of Teaching PYQ विषय"],
+["एक शिक्षक का feedback 'अच्छा काम' है। इसे अधिक शिक्षाप्रद बनाने के लिए क्या जोड़ा जाना चाहिए?","कौन-सा पक्ष अच्छा रहा और अगला सुधार क्या हो सकता है","केवल अधिक प्रशंसा","केवल कम अंक","केवल दूसरे विद्यार्थी से तुलना",0,"STET Art of Teaching PYQ विषय"],
+["यदि कोई assessment केवल वही चीज मापता है जिसे वह मापने के लिए बनाया गया है, तो यह किस गुण को दर्शाता है?","वैधता","विश्वसनीयता","व्यावहारिकता","वस्तुनिष्ठता",0,"STET Art of Teaching PYQ विषय"],
+["यदि एक ही परीक्षा समान परिस्थितियों में बार-बार लगभग समान परिणाम देती है, तो यह मुख्यतः किस गुण को दर्शाती है?","विश्वसनीयता","वैधता","सृजनात्मकता","लचीलापन",0,"STET Art of Teaching PYQ विषय"],
+["कक्षा में open-ended प्रश्नों का प्रमुख लाभ क्या है?","एकाधिक संभावित तर्कों और सोच की प्रक्रिया को सामने लाना","केवल एक शब्द का उत्तर लेना","मूल्यांकन को असंभव बनाना","केवल तेज विद्यार्थियों को अवसर देना",0,"STET Art of Teaching PYQ विषय"],
+["यदि विद्यार्थी उत्तर की एक वैकल्पिक विधि देता है जो सही तर्क पर आधारित है, तो शिक्षक को क्या करना चाहिए?","तर्क की वैधता जाँचकर सही होने पर उसे स्वीकार करना","केवल अपनी विधि को सही मानना","उत्तर को गलत घोषित करना","विद्यार्थी को नकल का दोष देना",0,"STET Art of Teaching PYQ विषय"],
+["शिक्षण में scaffolding का उद्देश्य क्या है?","विद्यार्थी की वर्तमान क्षमता से थोड़ा आगे कार्य करने के लिए अस्थायी सहायता देना और धीरे-धीरे सहायता हटाना","हमेशा शिक्षक की सहायता पर निर्भर रखना","सभी कार्य शिक्षक द्वारा करना","केवल परीक्षा के समय सहायता देना",0,"STET Art of Teaching PYQ विषय"],
+["यदि विद्यार्थी की गलती अवधारणा की गलत समझ से उत्पन्न हुई है, तो सबसे उपयुक्त remediation क्या है?","गलत अवधारणा को पहचानकर नए उदाहरणों और reasoning से conceptual restructuring कराना","केवल वही प्रश्न दस बार लिखवाना","अंक काटकर छोड़ देना","सिर्फ उत्तर बता देना",0,"STET Art of Teaching PYQ विषय"],
+["समावेशी कक्षा में universal design for learning का मूल विचार क्या है?","शुरू से ही सीखने और अभिव्यक्ति के कई सुलभ रास्ते उपलब्ध कराना","सभी के लिए केवल एक ही तरीका रखना","केवल विशेष जरूरत वाले बच्चों के लिए अलग पाठ बनाना","केवल परीक्षा के समय अनुकूलन करना",0,"STET Art of Teaching PYQ विषय"],
+["कला-आधारित अधिगम में विद्यार्थी की स्वतंत्र अभिव्यक्ति को बढ़ावा देने के लिए शिक्षक को क्या करना चाहिए?","निर्धारित लक्ष्य रखते हुए प्रक्रिया और विकल्पों में उचित स्वतंत्रता देना","हर विद्यार्थी का अंतिम उत्पाद बिल्कुल समान करवाना","केवल शिक्षक का नमूना कॉपी करवाना","केवल रंगों के नाम याद करवाना",0,"STET Art of Teaching PYQ विषय"],
+["Reflective teaching का सबसे उपयुक्त अर्थ क्या है?","शिक्षक अपने शिक्षण के प्रमाण और अनुभवों का विश्लेषण करके आगे के शिक्षण में सुधार करता है","शिक्षक केवल अपनी गलतियाँ लिखता है","शिक्षक केवल परीक्षा परिणाम देखता है","शिक्षक बिना प्रमाण के अपनी विधि को सही मानता है",0,"STET Art of Teaching PYQ विषय"],
+["एक शिक्षक ने assessment data देखकर पाया कि कम अंक केवल एक subgroup में हैं। सबसे उचित अगला कदम क्या है?","संदर्भगत कारणों और item-level evidence की जाँच करना, फिर targeted support देना","पूरे वर्ग को कमजोर घोषित करना","subgroup को अलग करके पढ़ाना शुरू कर देना","बिना जाँच के परीक्षा आसान कर देना",0,"STET Art of Teaching PYQ विषय"],
+["शिक्षण में 'transfer' का प्रमाण सबसे मजबूत कब मिलता है?","जब विद्यार्थी सीखी अवधारणा को नई लेकिन संबंधित परिस्थिति में उचित रूप से लागू करता है","जब विद्यार्थी परिभाषा शब्दशः बोलता है","जब विद्यार्थी नोट्स साफ लिखता है","जब विद्यार्थी एक ही उदाहरण दोहराता है",0,"STET Art of Teaching PYQ विषय"],
+["एक उच्च-गुणवत्ता वाले learning outcome की सबसे महत्वपूर्ण विशेषता क्या है?","वह स्पष्ट रूप से बताता है कि सीखने के बाद विद्यार्थी क्या प्रदर्शित कर सकेगा","वह केवल शिक्षक की गतिविधि बताता है","वह केवल अध्याय का नाम बताता है","वह केवल पढ़ाने का समय बताता है",0,"STET Art of Teaching PYQ विषय"],
+["यदि दो assessment items एक ही कौशल को लगभग एक ही तरीके से मापते हैं, तो test design में क्या समस्या हो सकती है?","अनावश्यक redundancy और content coverage में कमी","वैधता हमेशा बढ़ती है","विश्वसनीयता हमेशा समाप्त होती है","मूल्यांकन स्वतः अधिक समावेशी हो जाता है",0,"STET Art of Teaching PYQ विषय"],
+["शिक्षक-प्रभावशीलता का मूल्यांकन करते समय केवल परीक्षा-अंकों पर निर्भर रहना क्यों अपर्याप्त हो सकता है?","क्योंकि सीखने के परिणामों के साथ संदर्भ, प्रक्रिया, विद्यार्थी विविधता और अन्य प्रमाण भी महत्वपूर्ण हो सकते हैं","क्योंकि परीक्षा-अंक कभी उपयोगी नहीं होते","क्योंकि शिक्षक का विषय-ज्ञान महत्वहीन है","क्योंकि केवल उपस्थिति पर्याप्त है",0,"STET Art of Teaching PYQ विषय"],
+["एक शिक्षक चाहता है कि विद्यार्थी स्वयं अपनी सीखने की रणनीति पहचानें और सुधारें। कौन-सी प्रक्रिया सबसे उपयुक्त है?","Self-assessment और metacognitive reflection","केवल मौखिक व्याख्यान","केवल दंड","केवल रटने का अभ्यास",0,"STET Art of Teaching PYQ विषय"],
+["कक्षा में 'why' और 'how do you know' जैसे प्रश्नों का लगातार प्रयोग किस प्रकार की सोच को अधिक सक्रिय करता है?","औचित्य, प्रमाण और मेटाकॉग्निशन","केवल शब्द-स्मरण","केवल लेखन की गति","केवल अनुशासन",0,"STET Art of Teaching PYQ विषय"],
+["यदि कोई lesson plan learning outcomes से शुरू होता है और assessment उन्हीं outcomes के प्रमाण खोजता है, तो यह किस सिद्धांत के अनुरूप है?","Alignment between outcomes, learning activities and assessment","केवल lecture method","केवल summative testing","केवल classroom management",0,"STET Art of Teaching PYQ विषय"]
+];
+
+let current=0, answers=Array(questions.length).fill(null), score=0;
+
+function startQuiz(){
+ document.getElementById("start").classList.add("hidden");
+ document.getElementById("quiz").classList.remove("hidden");
+ current=0; score=0; answers.fill(null); render();
+}
+function render(){
+ const q=questions[current];
+ document.getElementById("qno").textContent=current+1;
+ document.getElementById("correct").textContent=score;
+ document.getElementById("score").textContent=score;
+ document.getElementById("bar").style.width=((current+1)/questions.length*100)+"%";
+ document.getElementById("question").innerHTML=q[0]+"<div style="+"'font-size:13px;color:#777;margin-top:6px;font-weight:normal'+">PYQ / विषय: "+q[6]+"</div>";
+ const box=document.getElementById("options"); box.innerHTML="";
+ for(let i=1;i<=4;i++){
+   const b=document.createElement("button");
+   b.className="option";
+   b.textContent=String.fromCharCode(64+i)+". "+q[i];
+   b.onclick=()=>selectAnswer(i-1);
+   if(answers[current]!==null){
+     b.disabled=true;
+     if(i-1===q[5]) b.classList.add("correct");
+     if(i-1===answers[current] && answers[current]!==q[5]) b.classList.add("wrong");
+   }
+   box.appendChild(b);
+ }
+ const fb=document.getElementById("feedback");
+ if(answers[current]!==null){
+   fb.classList.remove("hidden");
+   fb.innerHTML=answers[current]===q[5]
+     ? "<strong>✓ सही उत्तर:</strong> "+q[q[5]+1]
+     : "<strong>✗ आपका उत्तर:</strong> "+q[answers[current]+1]+"<br><strong>सही उत्तर:</strong> "+q[q[5]+1];
+ } else fb.classList.add("hidden");
+ document.getElementById("prev").disabled=current===0;
+ document.getElementById("next").textContent=current===questions.length-1?"Finish":"Next →";
+}
+function selectAnswer(i){
+ if(answers[current]!==null)return;
+ answers[current]=i;
+ if(i===questions[current][5])score++;
+ render();
+}
+function prevQuestion(){if(current>0){current--;render();}}
+function nextQuestion(){
+ if(current<questions.length-1){current++;render();}
+ else{
+   document.getElementById("quiz").classList.add("hidden");
+   document.getElementById("result").classList.remove("hidden");
+   document.getElementById("finalScore").textContent=score;
+   document.getElementById("finalCorrect").textContent=score;
+ }
+}
+function restartQuiz(){
+ document.getElementById("result").classList.add("hidden");
+ document.getElementById("quiz").classList.remove("hidden");
+ current=0;score=0;answers.fill(null);render();
+}
+</script>
+</body>
+</html>
